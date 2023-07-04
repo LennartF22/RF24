@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RF24_config.h"
+
 class RF24_hal
 {
 public:
