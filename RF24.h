@@ -120,16 +120,6 @@ private:
     bool _is_p0_rx;                   /* For keeping track of pipe 0's usage in user-triggered RX mode. */
 
 protected:
-    /**
-     * SPI transactions
-     *
-     * Common code for SPI transactions including CSN toggle
-     *
-     */
-    inline void beginTransaction();
-
-    inline void endTransaction();
-
     /** Whether ack payloads are enabled. */
     bool ack_payloads_enabled;
     /** The address width to use (3, 4 or 5 bytes). */
