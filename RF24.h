@@ -16,12 +16,7 @@
 #define __RF24_H__
 
 #include "RF24_config.h"
-
-#if defined(RF24_LINUX) || defined(LITTLEWIRE)
-    #include "utility/includes.h"
-#elif defined SOFTSPI
-    #include <DigitalIO.h>
-#endif
+#include "RF24_hal.h"
 
 /**
  * @defgroup PALevel Power Amplifier level
@@ -115,29 +110,8 @@ typedef enum
 class RF24
 {
 private:
-#ifdef SOFTSPI
-    SoftSPI<SOFT_SPI_MISO_PIN, SOFT_SPI_MOSI_PIN, SOFT_SPI_SCK_PIN, SPI_MODE> spi;
-#elif defined(SPI_UART)
-    SPIUARTClass uspi;
-#endif
+    RF24_hal *hal;
 
-#if defined(RF24_LINUX) || defined(XMEGA_D3) /* XMEGA can use SPI class */
-    SPI spi;
-#endif // defined (RF24_LINUX) || defined (XMEGA_D3)
-#if defined(RF24_SPI_PTR)
-    _SPI* _spi;
-#endif // defined (RF24_SPI_PTR)
-#if defined(MRAA)
-    GPIO gpio;
-#endif
-
-    rf24_gpio_pin_t ce_pin;  /* "Chip Enable" pin, activates the RX or TX role */
-    rf24_gpio_pin_t csn_pin; /* SPI Chip select */
-    uint32_t spi_speed;      /* SPI Bus Speed */
-#if defined(RF24_LINUX) || defined(XMEGA_D3) || defined(RF24_RP2)
-    uint8_t spi_rxbuff[32 + 1]; //SPI receive buffer (payload max 32 bytes)
-    uint8_t spi_txbuff[32 + 1]; //SPI transmit buffer (payload max 32 bytes + 1 byte for the command)
-#endif
     uint8_t status;                   /* The status byte returned from every SPI transaction */
     uint8_t payload_size;             /* Fixed size of payloads */
     uint8_t pipe0_reading_address[5]; /* Last address set on pipe 0 for reading. */
@@ -198,30 +172,15 @@ public:
      *
      * See [Related Pages](pages.html) for device specific information
      *
-     * @param _cepin The pin attached to Chip Enable on the RF module
-     * @param _cspin The pin attached to Chip Select (often labeled CSN) on the radio module.
-     * - For the Arduino Due board, the [Arduino Due extended SPI feature](https://www.arduino.cc/en/Reference/DueExtendedSPI)
-     * is not supported. This means that the Due's pins 4, 10, or 52 are not mandated options (can use any digital output pin) for
-     * the radio's CSN pin.
-     * @param _spi_speed The SPI speed in Hz ie: 1000000 == 1Mhz
-     * - Users can specify default SPI speed by modifying @ref RF24_SPI_SPEED in @ref RF24_config.h
-     *     - For Arduino, the default SPI speed will only be properly configured this way on devices supporting SPI TRANSACTIONS
-     *     - Older/Unsupported Arduino devices will use a default clock divider & settings configuration
-     *     - For Linux: The old way of setting SPI speeds using BCM2835 driver enums has been removed as of v1.3.7
+     * @param _hal A pointer to the device specific hardware abstraction layer
      */
-    RF24(rf24_gpio_pin_t _cepin, rf24_gpio_pin_t _cspin, uint32_t _spi_speed = RF24_SPI_SPEED);
+    RF24(RF24_hal *_hal);
 
     /**
      * A constructor for initializing the radio's hardware dynamically
-     * @warning You MUST use begin(rf24_gpio_pin_t, rf24_gpio_pin_t) or begin(_SPI*, rf24_gpio_pin_t, rf24_gpio_pin_t) to pass both the
-     * digital output pin numbers connected to the radio's CE and CSN pins.
-     * @param _spi_speed The SPI speed in Hz ie: 1000000 == 1Mhz
-     * - Users can specify default SPI speed by modifying @ref RF24_SPI_SPEED in @ref RF24_config.h
-     *     - For Arduino, the default SPI speed will only be properly configured this way on devices supporting SPI TRANSACTIONS
-     *     - Older/Unsupported Arduino devices will use a default clock divider & settings configuration
-     *     - For Linux: The old way of setting SPI speeds using BCM2835 driver enums has been removed as of v1.3.7
+     * @warning You MUST use begin(RF24_hal*)
      */
-    RF24(uint32_t _spi_speed = RF24_SPI_SPEED);
+    RF24(void);
 
 #if defined(RF24_LINUX)
     virtual ~RF24() {};
@@ -243,58 +202,16 @@ public:
      */
     bool begin(void);
 
-#if defined(RF24_SPI_PTR) || defined(DOXYGEN_FORCED)
     /**
      * Same as begin(), but allows specifying a non-default SPI bus to use.
      *
-     * @note This function assumes the `SPI::begin()` method was called before to
-     * calling this function.
-     *
      * @warning This function is for the Arduino platforms only
      *
-     * @param spiBus A pointer or reference to an instantiated SPI bus object.
-     * The `_SPI` datatype is a "wrapped" definition that will represent
-     * various SPI implementations based on the specified platform.
-     * @see Review the [Arduino support page](md_docs_arduino.html).
+     * @param _hal A pointer to the device specific hardware abstraction layer
      *
      * @return same result as begin()
      */
-    bool begin(_SPI* spiBus);
-
-    /**
-     * Same as begin(), but allows dynamically specifying a SPI bus, CE pin,
-     * and CSN pin to use.
-     *
-     * @note This function assumes the `SPI::begin()` method was called before to
-     * calling this function.
-     *
-     * @warning This function is for the Arduino platforms only
-     *
-     * @param spiBus A pointer or reference to an instantiated SPI bus object.
-     * The `_SPI` datatype is a "wrapped" definition that will represent
-     * various SPI implementations based on the specified platform.
-     * @param _cepin The pin attached to Chip Enable on the RF module
-     * @param _cspin The pin attached to Chip Select (often labeled CSN) on the radio module.
-     * - For the Arduino Due board, the [Arduino Due extended SPI feature](https://www.arduino.cc/en/Reference/DueExtendedSPI)
-     * is not supported. This means that the Due's pins 4, 10, or 52 are not mandated options (can use any digital output pin) for the radio's CSN pin.
-     *
-     * @see Review the [Arduino support page](md_docs_arduino.html).
-     *
-     * @return same result as begin()
-     */
-    bool begin(_SPI* spiBus, rf24_gpio_pin_t _cepin, rf24_gpio_pin_t _cspin);
-#endif // defined (RF24_SPI_PTR) || defined (DOXYGEN_FORCED)
-
-    /**
-     * Same as begin(), but allows dynamically specifying a CE pin
-     * and CSN pin to use.
-     * @param _cepin The pin attached to Chip Enable on the RF module
-     * @param _cspin The pin attached to Chip Select (often labeled CSN) on the radio module.
-     * - For the Arduino Due board, the [Arduino Due extended SPI feature](https://www.arduino.cc/en/Reference/DueExtendedSPI)
-     * is not supported. This means that the Due's pins 4, 10, or 52 are not mandated options (can use any digital output pin) for the radio's CSN pin.
-     * @return same result as begin()
-     */
-    bool begin(rf24_gpio_pin_t _cepin, rf24_gpio_pin_t _cspin);
+    bool begin(RF24_hal* _hal);
 
     /**
      * Checks if the chip is connected to the SPI bus
@@ -667,12 +584,12 @@ public:
      * This function uses much less ram than other `*print*Details()` methods.
      *
      * @code
-     * uint8_t encoded_details[43] = {0};
+     * uint8_t encoded_details[38] = {0};
      * radio.encodeRadioDetails(encoded_details);
      * @endcode
      *
      * @param encoded_status The uint8_t array that RF24 radio details are
-     * encoded into. This array must be at least 43 bytes in length; any less would surely
+     * encoded into. This array must be at least 38 bytes in length; any less would surely
      * cause undefined behavior.
      *
      * Registers names and/or data corresponding to the index of the `encoded_details` array:
@@ -704,9 +621,6 @@ public:
      * | 35 |    FIFO_STATUS |
      * | 36 |    DYNPD |
      * | 37 |    FEATURE |
-     * | 38-39 | ce_pin |
-     * | 40-41 | csn_pin |
-     * | 42 |    SPI speed (in MHz) or'd with (isPlusVariant << 4) |
      */
     void encodeRadioDetails(uint8_t* encoded_status);
 
@@ -1895,18 +1809,6 @@ private:
      * initialize the GPIO pins
      */
     bool _init_pins();
-
-    /**
-     * Set chip select pin
-     *
-     * Running SPI bus at PI_CLOCK_DIV2 so we don't waste time transferring data
-     * and best of all, we make use of the radio's FIFO buffers. A lower speed
-     * means we're less likely to effectively leverage our FIFOs and pay a higher
-     * AVR runtime cost as toll.
-     *
-     * @param mode HIGH to take this unit off the SPI bus, LOW to put it on
-     */
-    void csn(bool mode);
 
     /**
      * Set chip enable
