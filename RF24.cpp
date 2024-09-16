@@ -2059,3 +2059,6 @@ void RF24::setRadiation(uint8_t level, rf24_datarate_e speed, bool lnaEnable)
     setup |= _pa_level_reg_value(level, lnaEnable);
     write_register(RF_SETUP, setup);
 }
+
+// evil
+#include "utility/esp_idf/spi.cpp"
