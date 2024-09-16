@@ -1,15 +1,15 @@
 #include <string.h> // memset()
 #include "spi.h"
 
-SPIClass::SPIClass() : bus(nullptr)
+ESPSPIClass::ESPSPIClass() : bus(nullptr)
 {
 }
 
-void SPIClass::begin(spi_host_device_t busNo, uint32_t speed)
+void ESPSPIClass::begin(spi_host_device_t busNo, uint32_t speed)
 {
     spi_bus_config_t busConfig;
     // We will use the pins corresponding to the specified busNo (appropriate config option).
-    // Users can also pass a customized bus config to SPIClass::begin() overload if/when
+    // Users can also pass a customized bus config to ESPSPIClass::begin() overload if/when
     // a secondary SPI bus is desired.
 #ifdef CONFIG_RF24_DEFAULT_MOSI
     busConfig.mosi_io_num = CONFIG_RF24_DEFAULT_MOSI;
@@ -44,7 +44,7 @@ void SPIClass::begin(spi_host_device_t busNo, uint32_t speed)
     begin(busNo, speed, ESP_SPI_MODE0, &busConfig);
 }
 
-void SPIClass::begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_bus_config_t* busConfig)
+void ESPSPIClass::begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_bus_config_t* busConfig)
 {
     esp_err_t ret = spi_bus_initialize(busNo, busConfig, SPI_DMA_CH_AUTO);
     ESP_ERROR_CHECK(ret);
@@ -66,19 +66,19 @@ void SPIClass::begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_
     ESP_ERROR_CHECK(ret);
 }
 
-void SPIClass::begin(spi_device_handle_t dev)
+void ESPSPIClass::begin(spi_device_handle_t dev)
 {
     bus = dev;
 }
 
-uint8_t SPIClass::transfer(uint8_t tx)
+uint8_t ESPSPIClass::transfer(uint8_t tx)
 {
     uint8_t recv = 0;
     transfernb(&tx, &recv, 1);
     return recv;
 }
 
-void SPIClass::transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len)
+void ESPSPIClass::transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len)
 {
     spi_transaction_t transactionConfig;
     memset(&transactionConfig, 0, sizeof(transactionConfig));
@@ -89,23 +89,23 @@ void SPIClass::transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len)
     ESP_ERROR_CHECK(ret);
 }
 
-void SPIClass::transfern(const uint8_t* buf, uint32_t len)
+void ESPSPIClass::transfern(const uint8_t* buf, uint32_t len)
 {
     transfernb(buf, nullptr, len);
 }
 
-void SPIClass::beginTransaction()
+void ESPSPIClass::beginTransaction()
 {
     esp_err_t ret = spi_device_acquire_bus(bus, portMAX_DELAY);
     ESP_ERROR_CHECK(ret);
 }
 
-void SPIClass::endTransaction()
+void ESPSPIClass::endTransaction()
 {
     spi_device_release_bus(bus);
 }
 
-SPIClass::~SPIClass()
+ESPSPIClass::~ESPSPIClass()
 {
     if (bus != nullptr) {
         esp_err_t ret = spi_bus_remove_device(bus);

@@ -30,11 +30,11 @@ enum esp_spi_mode_t : uint8_t
     ESP_SPI_MODE3 = 3,
 };
 
-class SPIClass
+class ESPSPIClass
 {
 
 public:
-    SPIClass();
+    ESPSPIClass();
 
     void begin(spi_host_device_t busNo = DEFAULT_SPI_BUS, uint32_t speed = RF24_SPI_SPEED);
     void begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_bus_config_t* busConfig);
@@ -50,7 +50,7 @@ public:
 
     void transfern(const uint8_t* buf, uint32_t len);
 
-    virtual ~SPIClass();
+    virtual ~ESPSPIClass();
 
 private:
     /** SPI bus handle: A pointer to the allocated SPI device as initialized in begin() */
