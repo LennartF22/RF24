@@ -45,7 +45,8 @@ typedef uint16_t prog_uint16_t;
 #endif
 
 #ifdef ARDUINO
-
+typedef uint8_t rf24_gpio_pin_t;
+#define RF24_PIN_INVALID 0xFF
 #else
 #include "gpio.h"
 #include "compatibility.h"
