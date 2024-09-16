@@ -22,12 +22,12 @@
 
 #define SPI_HAS_TRANSACTION
 
-enum spi_mode_t : uint8_t
+enum esp_spi_mode_t : uint8_t
 {
-    SPI_MODE0 = 0,
-    SPI_MODE1 = 1,
-    SPI_MODE2 = 2,
-    SPI_MODE3 = 3,
+    ESP_SPI_MODE0 = 0,
+    ESP_SPI_MODE1 = 1,
+    ESP_SPI_MODE2 = 2,
+    ESP_SPI_MODE3 = 3,
 };
 
 class SPIClass

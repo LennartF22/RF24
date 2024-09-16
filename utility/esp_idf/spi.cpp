@@ -41,7 +41,7 @@ void SPIClass::begin(spi_host_device_t busNo, uint32_t speed)
     busConfig.isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO;
     busConfig.intr_flags = 0;
 
-    begin(busNo, speed, SPI_MODE0, &busConfig);
+    begin(busNo, speed, ESP_SPI_MODE0, &busConfig);
 }
 
 void SPIClass::begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_bus_config_t* busConfig)
