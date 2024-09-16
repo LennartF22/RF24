@@ -38,7 +38,7 @@ void ESPSPIClass::begin(spi_host_device_t busNo, uint32_t speed)
     busConfig.data7_io_num = -1;
     busConfig.max_transfer_sz = 33; // RF24 lib only buffers 33 bytes for SPI transactions
     busConfig.flags = 0;
-    busConfig.isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO;
+    //busConfig.isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO;
     busConfig.intr_flags = 0;
 
     begin(busNo, speed, ESP_SPI_MODE0, &busConfig);
@@ -51,7 +51,7 @@ void ESPSPIClass::begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, s
 
     spi_device_interface_config_t device_conf;
     device_conf.mode = mode;
-    device_conf.clock_source = SPI_CLK_SRC_DEFAULT;
+    //device_conf.clock_source = SPI_CLK_SRC_DEFAULT;
     device_conf.clock_speed_hz = speed;
     device_conf.input_delay_ns = 0; // delay not needed between CSN assert and MISO start
     device_conf.spics_io_num = -1;  // RF24::csn() will control the CSN pin
