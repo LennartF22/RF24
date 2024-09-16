@@ -38,12 +38,13 @@ public:
 
     void begin(spi_host_device_t busNo = DEFAULT_SPI_BUS, uint32_t speed = RF24_SPI_SPEED);
     void begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_bus_config_t* busConfig);
+    void begin(spi_device_handle_t dev);
 
     void beginTransaction();
 
     void endTransaction();
 
-    uint8_t transfer(uint8_t tx_);
+    uint8_t transfer(uint8_t tx);
 
     void transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len);
 

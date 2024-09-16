@@ -66,10 +66,15 @@ void SPIClass::begin(spi_host_device_t busNo, uint32_t speed, uint8_t mode, spi_
     ESP_ERROR_CHECK(ret);
 }
 
-uint8_t SPIClass::transfer(uint8_t tx_)
+void SPIClass::begin(spi_device_handle_t dev)
+{
+    bus = dev;
+}
+
+uint8_t SPIClass::transfer(uint8_t tx)
 {
     uint8_t recv = 0;
-    transfernb(&tx_, &recv, 1);
+    transfernb(&tx, &recv, 1);
     return recv;
 }
 
@@ -86,7 +91,7 @@ void SPIClass::transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len)
 
 void SPIClass::transfern(const uint8_t* buf, uint32_t len)
 {
-    transfernb(buf, NULL, len);
+    transfernb(buf, nullptr, len);
 }
 
 void SPIClass::beginTransaction()

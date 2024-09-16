@@ -90,12 +90,12 @@ void RF24::csn(bool mode)
         _SPI.chipSelect(csn_pin);
 #endif // defined(RF24_RPi)
 
-#if !defined(RF24_LINUX)
+#if !defined(RF24_LINUX) && !defined(RF24_ESP_IDF)
     digitalWrite(csn_pin, mode);
     delayMicroseconds(csDelay);
 #else
     static_cast<void>(mode); // ignore -Wunused-parameter
-#endif // !defined(RF24_LINUX)
+#endif // !defined(RF24_LINUX) && !defined(RF24_ESP_IDF)
 }
 
 /****************************************************************************/
@@ -1011,6 +1011,12 @@ bool RF24::_init_pins()
     ce(LOW);
     delay(100);
 
+#elif defined(RF24_ESP_IDF)
+
+    pinMode(ce_pin, OUTPUT);
+    ce(LOW);
+    delay(100); // ?
+
 #elif defined(LITTLEWIRE)
     pinMode(csn_pin, OUTPUT);
     csn(HIGH);
@@ -1037,7 +1043,7 @@ bool RF24::_init_pins()
     #if defined(__ARDUINO_X86__)
     delay(100);
     #endif
-#endif // !defined(XMEGA_D3) && !defined(LITTLEWIRE) && !defined(RF24_LINUX)
+#endif // !defined(XMEGA_D3) && !defined(LITTLEWIRE) && !defined(RF24_LINUX) && !defined(RF24_ESP_IDF)
 
     return true; // assuming pins are connected properly
 }
@@ -1123,7 +1129,11 @@ bool RF24::isChipConnected()
 
 bool RF24::isValid()
 {
+#if defined(RF24_ESP_IDF)
+    return ce_pin != RF24_PIN_INVALID && csn_pin == RF24_PIN_INVALID;
+#else // !defined(RF24_ESP_IDF)
     return ce_pin != RF24_PIN_INVALID && csn_pin != RF24_PIN_INVALID;
+#endif // !defined(RF24_ESP_IDF)
 }
 
 /****************************************************************************/

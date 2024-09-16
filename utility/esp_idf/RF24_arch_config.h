@@ -7,15 +7,19 @@
 
 #define RF24_ESP_IDF
 
+#ifdef ARDUINO
+#include <Arduino.h>
+#else
 #include <stdint.h> // uintXX_t
 #include <stdio.h>  // printf(), sprintf()
 #include <string.h> // memcpy() used in RF24.cpp, strlen()
 #include <unistd.h> // usleep()
-#include "spi.h"
-#include "gpio.h"
-#include "compatibility.h"
 
 #define _BV(x) (1 << (x))
+#endif
+
+#include "spi.h"
+
 #define _SPI   SPIClass
 #define RF24_SPI_PTR
 
@@ -25,16 +29,26 @@
     #define IF_RF24_DEBUG(x)
 #endif
 
+#ifdef ARDUINO
+#include <pgmspace.h> // necessary?
+#else
 typedef uint16_t prog_uint16_t;
 #define PSTR(x)  (x)
 #define printf_P printf
+#define sprintf_P sprintf
 #define strlen_P strlen
 #define PROGMEM
+#define PRIPSTR  "%s"
 #define pgm_read_word(p) (*(const unsigned short*)(p))
-#define PRIPSTR          "%s"
 #define pgm_read_byte(p) (*(const unsigned char*)(p))
+#define pgm_read_ptr(p)  (*(void* const*)(p))
+#endif
 
-#define pgm_read_ptr(p) (*(void* const*)(p))
+#ifdef ARDUINO
+
+#else
+#include "gpio.h"
+#include "compatibility.h"
 
 // Function, constant map as a result of migrating from Arduino
 #define LOW                      GPIO::OUTPUT_LOW
@@ -46,5 +60,6 @@ typedef uint16_t prog_uint16_t;
 #define delay(milisec)           __msleep(milisec)
 #define delayMicroseconds(usec)  usleep(usec)
 #define millis()                 __millis()
+#endif
 
 #endif // RF24_UTILITY_ESP_IDF_RF24_ARCH_CONFIG_H_
