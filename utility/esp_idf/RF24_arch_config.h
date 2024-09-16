@@ -38,11 +38,12 @@ typedef uint16_t prog_uint16_t;
 #define sprintf_P sprintf
 #define strlen_P strlen
 #define PROGMEM
-#define PRIPSTR  "%s"
 #define pgm_read_word(p) (*(const unsigned short*)(p))
 #define pgm_read_byte(p) (*(const unsigned char*)(p))
 #define pgm_read_ptr(p)  (*(void* const*)(p))
 #endif
+
+#define PRIPSTR "%s"
 
 #ifdef ARDUINO
 typedef uint8_t rf24_gpio_pin_t;
