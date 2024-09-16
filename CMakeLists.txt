@@ -96,6 +96,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/CPackInfo.cmake)
 
 add_library(${LibTargetName} SHARED
     RF24.cpp
+    utility/esp_idf/spi.cpp
     ${RF24_DRIVER_SOURCES}
 )
 
