@@ -20,7 +20,7 @@
 
 #include "spi.h"
 
-#define _SPI   ESPSPIClass
+#define _SPI ESPSPIClass
 #define RF24_SPI_PTR
 
 #ifdef RF24_DEBUG

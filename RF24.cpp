@@ -980,7 +980,7 @@ bool RF24::begin(void)
     _spi->begin(PICO_DEFAULT_SPI ? spi1 : spi0);
 
 #elif defined(RF24_ESP_IDF)
-    _spi = new SPIClass();
+    _spi = new _SPI();
     _spi->begin();
 
 #else // using an Arduino platform || defined(LITTLEWIRE)
