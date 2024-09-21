@@ -9,6 +9,7 @@
 
 #include <stdint.h> // uintXX_t
 #include <driver/spi_master.h>
+#include <freertos/semphr.h>
 
 #ifndef RF24_SPI_SPEED
     #define RF24_SPI_SPEED 10000000
@@ -55,6 +56,8 @@ public:
 private:
     /** SPI bus handle: A pointer to the allocated SPI device as initialized in begin() */
     spi_device_handle_t bus;
+
+    SemaphoreHandle_t lock;
 };
 
 #endif // RF24_UTILITY_ESP_IDF_SPI_H_
