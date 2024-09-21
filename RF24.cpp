@@ -1659,7 +1659,11 @@ void RF24::closeReadingPipe(uint8_t pipe)
 void RF24::toggle_features(void)
 {
     beginTransaction();
-#if defined(RF24_SPI_PTR)
+#if defined(RF24_ESP_IDF)
+    spi_rxbuff[0] = ACTIVATE;
+    spi_txbuff[1] = 0x73;
+    _spi->transfernb((const uint8_t*)spi_txbuff, spi_rxbuff, 2);
+#elif defined(RF24_SPI_PTR)
     status = _spi->transfer(ACTIVATE);
     _spi->transfer(0x73);
 #else
