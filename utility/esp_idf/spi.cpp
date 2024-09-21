@@ -72,13 +72,6 @@ void ESPSPIClass::begin(spi_device_handle_t dev)
     bus = dev;
 }
 
-uint8_t ESPSPIClass::transfer(uint8_t tx)
-{
-    uint8_t recv = 0;
-    transfernb(&tx, &recv, 1);
-    return recv;
-}
-
 void ESPSPIClass::transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len)
 {
     spi_transaction_t transactionConfig;
@@ -86,10 +79,8 @@ void ESPSPIClass::transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len)
     transactionConfig.length = len * 8; // in bits, not bytes
     transactionConfig.tx_buffer = txBuf;
     transactionConfig.rx_buffer = rxBuf;
-    while (xSemaphoreTake(lock, portMAX_DELAY) != pdPASS);
     esp_err_t ret = spi_device_polling_transmit(bus, &transactionConfig);
     ESP_ERROR_CHECK(ret);
-    xSemaphoreGive(lock);
 }
 
 void ESPSPIClass::transfern(const uint8_t* buf, uint32_t len)
@@ -99,10 +90,14 @@ void ESPSPIClass::transfern(const uint8_t* buf, uint32_t len)
 
 void ESPSPIClass::beginTransaction()
 {
+    while (xSemaphoreTake(lock, portMAX_DELAY) != pdPASS);
+    ESP_ERROR_CHECK(spi_device_acquire_bus(bus, portMAX_DELAY));
 }
 
 void ESPSPIClass::endTransaction()
 {
+    spi_device_release_bus(bus);
+    xSemaphoreGive(lock);
 }
 
 ESPSPIClass::~ESPSPIClass()

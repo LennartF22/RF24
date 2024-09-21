@@ -45,8 +45,6 @@ public:
 
     void endTransaction();
 
-    uint8_t transfer(uint8_t tx);
-
     void transfernb(const uint8_t* txBuf, uint8_t* rxBuf, uint32_t len);
 
     void transfern(const uint8_t* buf, uint32_t len);
